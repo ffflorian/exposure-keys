@@ -78,7 +78,6 @@
   "main": "dist/index.js",
   "name": "exposure-keys",
   "prettier": "@ffflorian/prettier-config",
-  "private": true,
   "repository": "https://github.com/ffflorian/exposure-keys.git",
   "scripts": {
     "build": "yarn build:proto && yarn build:ts",
