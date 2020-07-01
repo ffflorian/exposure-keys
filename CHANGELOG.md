@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/ffflorian/exposure-keys/compare/v1.1.0...v1.2.0) (2020-07-01)
+
+
+### Features
+
+* Add riskCount ([afd3d10](https://github.com/ffflorian/exposure-keys/commit/afd3d10))
+
 # [1.1.0](https://github.com/ffflorian/exposure-keys/compare/v1.0.1...v1.1.0) (2020-07-01)
 
 
