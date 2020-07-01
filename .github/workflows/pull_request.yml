@@ -1,6 +1,6 @@
-name: Build
+name: Pull request
 
-on: [push, pull_request]
+on: pull_request
 
 jobs:
   build_lint_test:
@@ -28,5 +28,5 @@ jobs:
         run: |
           yarn
           yarn lint
-          yarn dist
           yarn test
+          yarn dist

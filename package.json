@@ -4,8 +4,9 @@
     "my-cli": "dist/cli.js"
   },
   "dependencies": {
+    "jszip": "3.5.0"
   },
-  "description": "A boilerplate for a modern™ TypeScript project.",
+  "description": "Temporary Exposure Keys (TEK) library",
   "devDependencies": {
     "@ffflorian/eslint-config": "0.5.1",
     "@ffflorian/prettier-config": "0.0.6",
@@ -30,6 +31,7 @@
     "jasmine": "3.5.0",
     "lint-staged": "10.2.11",
     "prettier": "2.0.5",
+    "protobufjs": "6.9.0",
     "rimraf": "3.0.2",
     "semantic-release": "17.1.1",
     "ts-node": "8.10.2",
@@ -39,10 +41,21 @@
     "node": ">= 10.9"
   },
   "files": [
-    "dist"
+    "dist",
+    "proto/export.js",
+    "proto/export.d.ts"
   ],
   "keywords": [
-    "cli",
+    "tek",
+    "temporary",
+    "exposure",
+    "keys",
+    "google",
+    "apple",
+    "corona",
+    "covid",
+    "covid19",
+    "covid-19",
     "typescript"
   ],
   "husky": {
@@ -63,12 +76,14 @@
     ]
   },
   "main": "dist/index.js",
-  "name": "@ffflorian/ts-boilerplate",
+  "name": "exposure-keys",
   "prettier": "@ffflorian/prettier-config",
   "private": true,
-  "repository": "https://github.com/ffflorian/ts-boilerplate.git",
+  "repository": "https://github.com/ffflorian/exposure-keys.git",
   "scripts": {
-    "build": "tsc",
+    "build": "yarn build:proto && yarn build:ts",
+    "build:proto": "pbjs --t static-module -w commonjs --es6 -o proto/export.js proto/export.proto && pbts --out proto/export.d.ts --no-comments proto/export.js",
+    "build:ts": "tsc",
     "clean": "rimraf dist",
     "dist": "yarn clean && yarn build",
     "fix": "yarn fix:other && yarn fix:ts",
