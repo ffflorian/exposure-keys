@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/ffflorian/exposure-keys/compare/v1.2.0...v1.3.0) (2020-09-03)
+
+
+### Features
+
+* Publish flattened ([0c5e996](https://github.com/ffflorian/exposure-keys/commit/0c5e996a0a019c022775af5f097d69fc9f341f88))
+
 # [1.2.0](https://github.com/ffflorian/exposure-keys/compare/v1.1.0...v1.2.0) (2020-07-01)
 
 
