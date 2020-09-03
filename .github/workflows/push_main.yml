@@ -27,6 +27,7 @@ jobs:
           yarn lint
           yarn test
           yarn dist
+          yarn flatten
       - name: Release on npm
         run: |
           git config --global "user.email" "${GIT_AUTHOR_EMAIL}"
@@ -45,6 +46,7 @@ jobs:
         run: |
           rm .npmrc
           echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" > ~/.npmrc
+          cd flattened
           sed -i "s/\"name\": \"/\"name\": \"@ffflorian\//" package.json
           npm publish --registry=https://npm.pkg.github.com || true
         env:
