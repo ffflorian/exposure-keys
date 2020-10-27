@@ -31,14 +31,14 @@ jobs:
         with:
           node-version: 14.x
         if: |
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]')
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
 
       - name: Yarn cache
         uses: c-hive/gha-yarn-cache@v1
         if: |
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]')
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
 
       - name: Build, lint and test
         run: |
@@ -48,8 +48,8 @@ jobs:
           yarn dist
           yarn flatten
         if: |
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]')
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
 
       - name: Release on npm
         run: |
@@ -65,9 +65,9 @@ jobs:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
         if: |
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]') &&
-          !startsWith(env.TITLE || env.COMMIT_MESSAGE, 'chore') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]') &&
+          !startsWith(env.COMMIT_MESSAGE || env.TITLE, 'chore') &&
           env.BRANCH_NAME == 'main'
 
       - name: Release on GitHub
@@ -80,7 +80,7 @@ jobs:
         env:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
         if: |
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
-          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]') &&
-          !startsWith(env.TITLE || env.COMMIT_MESSAGE, 'chore') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]') &&
+          !startsWith(env.COMMIT_MESSAGE || env.TITLE, 'chore') &&
           env.BRANCH_NAME == 'main'
