@@ -1,0 +1,86 @@
+name: Pull Request
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_lint_test:
+    name: Build, test and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Get commit message
+        run: |
+          PR_TITLE="${{github.event.pull_request.title}}"
+          GH_COMMIT_MESSAGE="${{github.event.head_commit.message}}"
+          GIT_COMMIT_MESSAGE="$(git log --format=%B -n 1 ${{github.event.after}} | head -n 1)"
+          COMMIT_MESSAGE="$(test "${GH_COMMIT_MESSAGE}" && echo "${GH_COMMIT_MESSAGE}" || echo "${GIT_COMMIT_MESSAGE}")"
+          echo "BRANCH_NAME=\"$(git branch --show-current)\"" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=\"$(test "${PR_TITLE}" && echo "${PR_TITLE}" || echo "${COMMIT_MESSAGE}")\"" >> $GITHUB_ENV
+          echo "TITLE=\"${PR_TITLE}\"" >> $GITHUB_ENV
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+        if: |
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]')
+
+      - name: Yarn cache
+        uses: c-hive/gha-yarn-cache@v1
+        if: |
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]')
+
+      - name: Build, lint and test
+        run: |
+          yarn
+          yarn lint
+          yarn test
+          yarn dist
+          yarn flatten
+        if: |
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]')
+
+      - name: Release on npm
+        run: |
+          git config --global "user.email" "${GIT_AUTHOR_EMAIL}"
+          git config --global "user.name" "${GIT_AUTHOR_NAME}"
+          REPO_URL="$(git remote get-url origin | sed -n "s/https:\/\/github.com\//https:\/\/${GIT_AUTHOR_NAME}:${GH_TOKEN}@github.com\//p")"
+          yarn release -r "${REPO_URL}"
+        env:
+          GIT_AUTHOR_NAME: ffflobot
+          GIT_AUTHOR_EMAIL: ffflobot@users.noreply.github.com
+          GIT_COMMITTER_NAME: ffflobot
+          GIT_COMMITTER_EMAIL: ffflobot@users.noreply.github.com
+          GH_TOKEN: ${{secrets.GH_TOKEN}}
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+        if: |
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]') &&
+          !startsWith(env.TITLE || env.COMMIT_MESSAGE, 'chore') &&
+          env.BRANCH_NAME == 'main'
+
+      - name: Release on GitHub
+        run: |
+          rm .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" > ~/.npmrc
+          cd flattened
+          sed -i "s/\"name\": \"/\"name\": \"@ffflorian\//" package.json
+          npm publish --registry=https://npm.pkg.github.com || true
+        env:
+          GH_TOKEN: ${{secrets.GH_TOKEN}}
+        if: |
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[ci skip]') &&
+          !contains(env.TITLE || env.COMMIT_MESSAGE, '[skip ci]') &&
+          !startsWith(env.TITLE || env.COMMIT_MESSAGE, 'chore') &&
+          env.BRANCH_NAME == 'main'
