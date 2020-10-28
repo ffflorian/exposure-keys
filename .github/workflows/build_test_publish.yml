@@ -26,6 +26,11 @@ jobs:
           echo "COMMIT_MESSAGE=\"$(test "${PR_TITLE}" && echo "${PR_TITLE}" || echo "${COMMIT_MESSAGE}")\"" >> $GITHUB_ENV
           echo "TITLE=\"${PR_TITLE}\"" >> $GITHUB_ENV
 
+      - name: Echo environment variables
+        run: |
+          echo "BRANCH_NAME=\"${env.BRANCH_NAME}\""
+          echo "COMMIT_MESSAGE=\"${env.COMMIT_MESSAGE}\""
+          echo "TITLE=\"${env.TITLE}\""
       - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
