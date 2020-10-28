@@ -1,4 +1,4 @@
-name: Build, test and publish
+name: Build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build_lint_test:
+  build_test_publish:
     name: Build, test and publish
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Get commit message
+      - name: Set environment variables
         run: |
           PR_TITLE="${{github.event.pull_request.title}}"
           GH_COMMIT_MESSAGE="${{github.event.head_commit.message}}"
@@ -32,14 +32,17 @@ jobs:
           echo "TITLE=\"${{env.TITLE}}\""
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14.x
         if: |
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
 
       - name: Get yarn cache
+        if: |
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - uses: actions/cache@v2
@@ -49,22 +52,24 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
+      - name: Build, lint and test
         if: |
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
-
-      - name: Build, lint and test
         run: |
           yarn
           yarn lint
           yarn test
           yarn dist
           yarn flatten
-        if: |
-          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
-          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
 
       - name: Release on npm
+        if: |
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
+          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]') &&
+          !startsWith(env.COMMIT_MESSAGE || env.TITLE, 'chore') &&
+          env.BRANCH_NAME == 'main'
         env:
           GIT_AUTHOR_NAME: ffflobot
           GIT_AUTHOR_EMAIL: ffflobot@users.noreply.github.com
@@ -77,13 +82,13 @@ jobs:
           git config --global "user.name" "${GIT_AUTHOR_NAME}"
           REPO_URL="$(git remote get-url origin | sed -n "s/https:\/\/github.com\//https:\/\/${GIT_AUTHOR_NAME}:${GH_TOKEN}@github.com\//p")"
           yarn release -r "${REPO_URL}"
+
+      - name: Release on GitHub
         if: |
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]') &&
           !startsWith(env.COMMIT_MESSAGE || env.TITLE, 'chore') &&
           env.BRANCH_NAME == 'main'
-
-      - name: Release on GitHub
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
@@ -92,8 +97,3 @@ jobs:
           cd flattened
           sed -i "s/\"name\": \"/\"name\": \"@ffflorian\//" package.json
           npm publish --registry=https://npm.pkg.github.com || true
-        if: |
-          !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
-          !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]') &&
-          !startsWith(env.COMMIT_MESSAGE || env.TITLE, 'chore') &&
-          env.BRANCH_NAME == 'main'
