@@ -30,8 +30,6 @@ jobs:
           echo "BRANCH_NAME=\"${{env.BRANCH_NAME}}\""
           echo "COMMIT_MESSAGE=\"${{env.COMMIT_MESSAGE}}\""
           echo "TITLE=\"${{env.TITLE}}\""
-          echo "env.GITHUB_TOKEN=\"${{env.GITHUB_TOKEN}}\""
-          echo "GITHUB_TOKEN=\"${GITHUB_TOKEN}\""
 
       - name: Set up Node.js
         uses: actions/setup-node@v1
@@ -67,18 +65,18 @@ jobs:
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]')
 
       - name: Release on npm
-        run: |
-          git config --global "user.email" "${GIT_AUTHOR_EMAIL}"
-          git config --global "user.name" "${GIT_AUTHOR_NAME}"
-          REPO_URL="$(git remote get-url origin | sed -n "s/https:\/\/github.com\//https:\/\/${GIT_AUTHOR_NAME}:${GH_TOKEN}@github.com\//p")"
-          yarn release -r "${REPO_URL}"
         env:
           GIT_AUTHOR_NAME: ffflobot
           GIT_AUTHOR_EMAIL: ffflobot@users.noreply.github.com
           GIT_COMMITTER_NAME: ffflobot
           GIT_COMMITTER_EMAIL: ffflobot@users.noreply.github.com
-          GH_TOKEN: ${{env.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+        run: |
+          git config --global "user.email" "${GIT_AUTHOR_EMAIL}"
+          git config --global "user.name" "${GIT_AUTHOR_NAME}"
+          REPO_URL="$(git remote get-url origin | sed -n "s/https:\/\/github.com\//https:\/\/${GIT_AUTHOR_NAME}:${GH_TOKEN}@github.com\//p")"
+          yarn release -r "${REPO_URL}"
         if: |
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]') &&
@@ -86,14 +84,14 @@ jobs:
           env.BRANCH_NAME == 'main'
 
       - name: Release on GitHub
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           rm .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" > ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" > ~/.npmrc
           cd flattened
           sed -i "s/\"name\": \"/\"name\": \"@ffflorian\//" package.json
           npm publish --registry=https://npm.pkg.github.com || true
-        env:
-          GH_TOKEN: ${{secrets.GH_TOKEN}}
         if: |
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[ci skip]') &&
           !contains(env.COMMIT_MESSAGE || env.TITLE, '[skip ci]') &&
