@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/ffflorian/exposure-keys/compare/v1.3.0...v1.3.1) (2020-10-29)
+
+
+### Bug Fixes
+
+* Add more information to the proto file ([a326d2d](https://github.com/ffflorian/exposure-keys/commit/a326d2d065c91d2c9d0b830abda5294924f09707))
+
 # [1.3.0](https://github.com/ffflorian/exposure-keys/compare/v1.2.0...v1.3.0) (2020-09-03)
 
 
