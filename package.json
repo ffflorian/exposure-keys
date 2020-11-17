@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "jszip": "3.5.0",
-    "protobufjs": "6.10.1"
+    "protobufjs": "6.10.2"
   },
   "description": "Temporary Exposure Keys (TEK) library",
   "devDependencies": {
