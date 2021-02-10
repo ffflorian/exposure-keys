@@ -4,7 +4,7 @@
     "my-cli": "dist/cli.js"
   },
   "dependencies": {
-    "jszip": "3.5.0",
+    "jszip": "3.6.0",
     "protobufjs": "6.10.2"
   },
   "description": "Temporary Exposure Keys (TEK) library",
