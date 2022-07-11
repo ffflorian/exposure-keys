@@ -2,7 +2,7 @@
   "author": "Florian Imdahl <git@ffflorian.de>",
   "dependencies": {
     "jszip": "3.10.0",
-    "protobufjs": "6.11.3"
+    "protobufjs": "7.0.0"
   },
   "description": "Temporary Exposure Keys (TEK) library",
   "devDependencies": {
