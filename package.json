@@ -68,9 +68,7 @@
   "repository": "https://github.com/ffflorian/exposure-keys.git",
   "scripts": {
     "build": "yarn build:proto && yarn build:ts",
-    "build:proto": "pbjs --t static-module -w commonjs -o proto/export.js proto/export.proto && pbts --out proto/export.d.ts --no-comments proto/export.js && yarn fix:proto",
-    "// fix:proto is needed due to": "https://github.com/protobufjs/protobuf.js/issues/1796",
-    "fix:proto": "awk 'NR==1{print;print \"import Long = require(\\\"long\\\");\"} NR!=1' proto/export.d.ts > proto/export.d.ts.fixed && mv proto/export.d.ts.fixed proto/export.d.ts",
+    "build:proto": "pbjs --t static-module -w commonjs -o proto/export.js proto/export.proto && pbts --out proto/export.d.ts --no-comments proto/export.js",
     "build:ts": "tsc",
     "clean": "rimraf dist",
     "dist": "yarn clean && yarn build",
